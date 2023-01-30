@@ -134,17 +134,16 @@ FROM (
         GROUP BY endDates.cid
     ) as 'startEndIntervals'
     ON countTasks.cid = startEndIntervals.cid
-)
-ORDER BY count DESC;
+);
 
 SELECT * FROM (
     SELECT * FROM threadLoad
-    ORDER BY end ASC
+    ORDER BY count DESC, end ASC
     LIMIT 1
 )
 UNION
 SELECT * FROM (
     SELECT * FROM threadLoad
-    ORDER BY start DESC
+    ORDER BY count DESC, start DESC
     LIMIT 1
 );
