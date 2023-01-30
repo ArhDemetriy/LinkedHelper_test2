@@ -23,7 +23,7 @@ FROM (
 
 
 SELECT startDates.cid as cid, start, end
-SELECT *, count(endDates.date >= startDates.date) as 'count'
+SELECT *, count() as 'count'
 FROM (
     (
         SELECT *
@@ -45,11 +45,27 @@ FROM (
     ON endDates.date >= startDates.date
 )
 
-
-SELECT count(date)
+-- количество тасков начавшихся на момент окончания указанного таска
+SELECT endDates.cid as 'cid', endDates.date as 'date', count() as 'count'
 FROM (
-        SELECT cid, date
-        FROM events
-        WHERE type='start'
-    )
-GROUP BY cid < 5
+    (
+        SELECT *
+        FROM (
+            SELECT cid, date
+            FROM events
+            WHERE type='end'
+        )
+    ) as 'endDates'
+    LEFT JOIN
+    (
+        SELECT *
+        FROM (
+            SELECT cid, date
+            FROM events
+            WHERE type='start'
+        )
+    ) as 'startDates'
+    ON endDates.date >= startDates.date
+)
+GROUP BY endDates.cid
+ORDER BY endDates.date
