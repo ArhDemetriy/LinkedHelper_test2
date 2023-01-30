@@ -87,7 +87,7 @@ FROM (
     ) as 'startEndIntervals'
     ON countTasks.cid = startEndIntervals.cid
 )
-ORDER BY count DESC, end DESC
+ORDER BY count DESC, start DESC
 LIMIT 1;
 
 -- *************
@@ -104,12 +104,7 @@ SELECT cid, date
 FROM events
 WHERE type='end';
 
-CREATE TEMP TABLE IF NOT EXISTS startEndIntervals AS
-SELECT endDates.cid AS 'cid', startDates.date AS 'start', endDates.date AS 'end'
-FROM endDates LEFT JOIN startDates
-ON endDates.date >= startDates.date
-GROUP BY endDates.cid;
-
+CREATE TEMP TABLE IF NOT EXISTS threadLoad AS
 SELECT startEndIntervals.start as 'start', startEndIntervals.end as 'end', count
 FROM (
     (
@@ -140,5 +135,16 @@ FROM (
     ) as 'startEndIntervals'
     ON countTasks.cid = startEndIntervals.cid
 )
-ORDER BY count DESC, end DESC
-LIMIT 1;
+ORDER BY count DESC;
+
+SELECT * FROM (
+    SELECT * FROM threadLoad
+    ORDER BY end ASC
+    LIMIT 1
+)
+UNION
+SELECT * FROM (
+    SELECT * FROM threadLoad
+    ORDER BY start DESC
+    LIMIT 1
+);
