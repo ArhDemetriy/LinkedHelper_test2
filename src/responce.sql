@@ -80,3 +80,25 @@ FROM (
 )
 ORDER BY count DESC, end ASC
 LIMIT 1
+
+
+
+CREATE TEMP TABLE IF NOT EXISTS startDates AS
+SELECT cid, date
+FROM events
+WHERE type='start';
+
+CREATE TEMP TABLE IF NOT EXISTS endDates AS
+SELECT cid, date
+FROM events
+WHERE type='end';
+
+-- количество тасков начавшихся на момент окончания указанного таска
+SELECT endDates.cid as 'cid', count() as 'count'
+FROM (
+    endDates
+    LEFT JOIN
+    startDates
+    ON endDates.date >= startDates.date
+)
+GROUP BY endDates.cid
